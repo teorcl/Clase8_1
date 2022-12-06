@@ -20,6 +20,11 @@ class LoginViewController: UIViewController {
     private struct Const{
         static let failureValidationMessage = "Credenciales incorrectas"
         static let segueIdentifier = "goToHome"
+        static let noUserExists = "El usuario no existe"
+        static let connectionError = "Fue imposible enviar la información al servidor"
+        static let errorTitle = "Error"
+        static let actionTitle = "Cancelar"
+        static let errorCredentials = "Credenciales incorrectas"
     }
     
     var email = String()
@@ -32,14 +37,14 @@ class LoginViewController: UIViewController {
     ]
     
     var validUsers = [User]()
+    let possibleFailures = [1,2,3]
 
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
 
 
     @IBAction func loginButtonPressed() {
-        processCredential()
-        clearCredentials()
+        runLogin()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -48,32 +53,65 @@ class LoginViewController: UIViewController {
             homeViewController.user = validUsers[0]
         }
     }
-    
-    private func processCredential(){
+
+    private func runLogin(){
+        getCredentials()
+        searchUserInDataBase()
+        manageAccess()
+        clearCredentials()
+    }
+      
+    private func getCredentials(){
         email = emailTextField.text ?? ""
         password = passwordTextField.text ?? ""
+    }
+    
+    private func searchUserInDataBase(){
+        validUsers = users.filter {$0.email == email}
+    }
+    
+    private func manageAccess(){
+        let fail = Int.random(in: 1...5)
+        if possibleFailures.contains(fail){
+            
+            executeAlert(title: Const.errorTitle, message: Const.connectionError, actionTitle: Const.actionTitle)
+            
+        } else if validUsers.count == 0{
+            
+            executeAlert(title: Const.errorTitle, message: Const.noUserExists, actionTitle: Const.actionTitle)
+            
+        } else {
+            
+            tryConnection()
+            
+        }
+    }
+    
+    private func executeAlert(title: String, message: String, actionTitle: String){
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: actionTitle, style: .cancel)
+        alert.addAction(cancelAction)
+        present(alert,animated: true)
+    }
+    
+    private func tryConnection(){
+        processCredential()
+    }
+    
+    private func processCredential(){
         let areCredentialsValid = validateCredentials()
-        
         processValidationResult(result: areCredentialsValid)
-        
     }
     
     private func validateCredentials() -> Bool {
-        var validation = false
-        searchUserWithEnteredCredentials()
-        
-        if validUsers.count == 1 {
-            validation = true
-        }
-        
-        return validation
+        return validUsers[0].email == email && validUsers[0].password == password
     }
     
     func processValidationResult(result:Bool){
         if result {
             excuteTransition()
         } else {
-            executeAlertError()
+            executeAlert(title: Const.errorTitle, message: Const.errorCredentials, actionTitle: Const.actionTitle)
         }
         
     }
@@ -84,19 +122,6 @@ class LoginViewController: UIViewController {
     
     private func clearCredentials(){
         passwordTextField.text?.removeAll()
-        emailTextField.text?.removeAll()
     }
     
-    private func searchUserWithEnteredCredentials(){
-        validUsers = users.filter {$0.email == email && $0.password == password}
-    }
-    
-    private func executeAlertError(){
-        let alert = UIAlertController(title: "Error", message: "El usuario no existe", preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "Cancelar", style: .cancel)
-        alert.addAction(cancelAction)
-        present(alert,animated: true)
-    }
-      
-        
 }

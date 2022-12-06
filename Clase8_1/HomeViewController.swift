@@ -17,6 +17,14 @@ class HomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setUI()
+    }
+
+    @IBAction func onLogOutButtonTapped(_ sender: UIBarButtonItem) {
+        dismiss(animated: true)
+    }
+    
+    private func setUI(){
         if let user = self.user{
             let fullName = "\(user.name) \(user.lastname)"
             let email = "\(user.email)"
@@ -24,10 +32,6 @@ class HomeViewController: UIViewController {
             fullNameLabel.text = fullName
             image.image = UIImage(named: user.image)
         }
-    }
-
-    @IBAction func onLogOutButtonTapped(_ sender: UIBarButtonItem) {
-        dismiss(animated: true)
     }
     
 }
