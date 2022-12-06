@@ -7,6 +7,14 @@
 
 import UIKit
 
+struct User{
+    let name:String
+    let lastname:String
+    let email:String
+    let password:String
+    let image:String
+}
+
 class LoginViewController: UIViewController {
     
     private struct Const{
@@ -16,6 +24,14 @@ class LoginViewController: UIViewController {
     
     var email = String()
     var password = String()
+    let users = [
+        User(name: "Homero", lastname: "Simpson", email: "homero@simpson.com", password: "Homero123*", image: "homero"),
+        User(name: "Bart", lastname: "Simpson", email: "bart@simpson.com", password: "Bart123*", image: "bart"),
+        User(name: "Lisa", lastname: "Simpson", email: "lisa@simpson.com", password: "Lisa123*", image: "lisa"),
+        User(name: "Marge", lastname: "Simpson", email: "marge@simpson.com", password: "Marge123*", image: "marge")
+    ]
+    
+    var validUsers = [User]()
 
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
@@ -24,6 +40,13 @@ class LoginViewController: UIViewController {
     @IBAction func loginButtonPressed() {
         processCredential()
         clearCredentials()
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if let homeViewController =  segue.destination as? HomeViewController {
+            homeViewController.user = validUsers[0]
+        }
     }
     
     private func processCredential(){
@@ -36,20 +59,21 @@ class LoginViewController: UIViewController {
     }
     
     private func validateCredentials() -> Bool {
-        // Almacenar las credenciales en una tupla y validar si esa tupla está en un arreglo
-        return true
+        var validation = false
+        searchUserWithEnteredCredentials()
+        
+        if validUsers.count == 1 {
+            validation = true
+        }
+        
+        return validation
     }
     
     func processValidationResult(result:Bool){
         if result {
             excuteTransition()
         } else {
-            /*if (true) {
-                // funcion para por no existencia de usuario o credenciales incorrectas
-            }else{
-                // funcion para alerta de conexion con la nube
-            }*/
-            
+            executeAlertError()
         }
         
     }
@@ -63,4 +87,17 @@ class LoginViewController: UIViewController {
         emailTextField.text?.removeAll()
     }
     
+    private func searchUserWithEnteredCredentials(){
+        validUsers = users.filter {$0.email == email && $0.password == password}
+        print(validUsers)
+    }
+    
+    private func executeAlertError(){
+        let alert = UIAlertController(title: "Error", message: "El usuario no existe", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Cancelar", style: .cancel)
+        alert.addAction(cancelAction)
+        present(alert,animated: true)
+    }
+      
+        
 }
