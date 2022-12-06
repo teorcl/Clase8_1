@@ -22,6 +22,7 @@ class HomeViewController: UIViewController {
             let email = "\(user.email)"
             emailLabel.text = email
             fullNameLabel.text = fullName
+            image.image = UIImage(named: user.image)
         }
     }
 

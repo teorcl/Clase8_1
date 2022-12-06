@@ -89,7 +89,6 @@ class LoginViewController: UIViewController {
     
     private func searchUserWithEnteredCredentials(){
         validUsers = users.filter {$0.email == email && $0.password == password}
-        print(validUsers)
     }
     
     private func executeAlertError(){
